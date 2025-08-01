@@ -36,16 +36,22 @@ export default function Cardapio() {
     <section className="p-4 text-black">
       <h2 className="text-2xl font-bold mb-4">Monte seu Hot Dog</h2>
 
-      {/* Paes */}
+      {/* Paes - Apenas 1 pode ser selecionado */}
       <div className="mb-6">
         <h3 className="text-xl font-semibold mb-2">Escolha o Pão</h3>
         <div className="grid gap-2">
           {paes.map((pao) => (
             <label key={pao} className="flex items-center gap-2">
               <input
-                type="checkbox"
+                type="radio"
+                name="pao"
                 checked={selecionados.paes.includes(pao)}
-                onChange={() => handleCheckboxChange('paes', pao)}
+                onChange={() =>
+                  setSelecionados((prev) => ({
+                    ...prev,
+                    paes: [pao],
+                  }))
+                }
                 className="accent-red-600"
               />
               {pao}
@@ -90,7 +96,7 @@ export default function Cardapio() {
         </div>
       </div>
 
-      {/* Mostrar seleção (opcional para testes) */}
+      {/* Mostrar seleção */}
       <div className="mt-6 p-4 bg-gray-100 rounded">
         <h4 className="font-semibold">Sua seleção:</h4>
         <p><strong>Pães:</strong> {selecionados.paes.join(', ') || 'Nenhum'}</p>
