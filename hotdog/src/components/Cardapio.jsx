@@ -1,6 +1,7 @@
 // Caminho: src/components/Cardapio.jsx
 
-import { useState } from 'react'
+import { useState, useContext } from 'react'
+import { CartContext } from '../context/CartContext'
 
 const paes = ['Pão pequeno', 'Pão grande']
 const ingredientes = [
@@ -14,11 +15,20 @@ const molhos = [
 ]
 
 export default function Cardapio() {
+  const { addToCart } = useContext(CartContext)
+
   const [selecionados, setSelecionados] = useState({
-    paes: [],
+    paes: '',
     ingredientes: [],
     molhos: [],
   })
+
+  function handlePaoChange(pao) {
+    setSelecionados((prev) => ({
+      ...prev,
+      paes: prev.paes === pao ? '' : pao,
+    }))
+  }
 
   function handleCheckboxChange(categoria, item) {
     setSelecionados((prev) => {
@@ -32,11 +42,34 @@ export default function Cardapio() {
     })
   }
 
+  function limparSelecoes() {
+    setSelecionados({
+      paes: '',
+      ingredientes: [],
+      molhos: [],
+    })
+  }
+
+  function adicionarAoCarrinho() {
+    const item = {
+      pao: selecionados.paes,
+      ingredientes: selecionados.ingredientes,
+      molhos: selecionados.molhos,
+    }
+    addToCart(item)
+  }
+
+  function gerarMensagemWhatsApp() {
+    const mensagem = `Olá! Gostaria de montar meu Hot Dog:\n\n🍞 Pão: ${selecionados.paes || 'Nenhum'}\n🧀 Ingredientes: ${selecionados.ingredientes.join(', ') || 'Nenhum'}\n🥫 Molhos: ${selecionados.molhos.join(', ') || 'Nenhum'}`
+    const url = `https://wa.me/5521977496651?text=${encodeURIComponent(mensagem)}`
+    window.open(url, '_blank')
+  }
+
   return (
     <section className="p-4 text-black">
       <h2 className="text-2xl font-bold mb-4">Monte seu Hot Dog</h2>
 
-      {/* Paes - Apenas 1 pode ser selecionado */}
+      {/* Pães */}
       <div className="mb-6">
         <h3 className="text-xl font-semibold mb-2">Escolha o Pão</h3>
         <div className="grid gap-2">
@@ -45,13 +78,8 @@ export default function Cardapio() {
               <input
                 type="radio"
                 name="pao"
-                checked={selecionados.paes.includes(pao)}
-                onChange={() =>
-                  setSelecionados((prev) => ({
-                    ...prev,
-                    paes: [pao],
-                  }))
-                }
+                checked={selecionados.paes === pao}
+                onChange={() => handlePaoChange(pao)}
                 className="accent-red-600"
               />
               {pao}
@@ -79,7 +107,7 @@ export default function Cardapio() {
       </div>
 
       {/* Molhos */}
-      <div>
+      <div className="mb-4">
         <h3 className="text-xl font-semibold mb-2">Molhos</h3>
         <div className="grid gap-2 md:grid-cols-2">
           {molhos.map((molho) => (
@@ -96,12 +124,26 @@ export default function Cardapio() {
         </div>
       </div>
 
-      {/* Mostrar seleção */}
-      <div className="mt-6 p-4 bg-gray-100 rounded">
-        <h4 className="font-semibold">Sua seleção:</h4>
-        <p><strong>Pães:</strong> {selecionados.paes.join(', ') || 'Nenhum'}</p>
-        <p><strong>Ingredientes:</strong> {selecionados.ingredientes.join(', ') || 'Nenhum'}</p>
-        <p><strong>Molhos:</strong> {selecionados.molhos.join(', ') || 'Nenhum'}</p>
+      {/* Ações */}
+      <div className="flex flex-col gap-2 md:flex-row mt-6">
+        <button
+          onClick={limparSelecoes}
+          className="bg-gray-300 text-black py-2 px-4 rounded hover:bg-gray-400 transition"
+        >
+          Limpar Tudo
+        </button>
+        <button
+          onClick={adicionarAoCarrinho}
+          className="bg-yellow-500 text-black py-2 px-4 rounded hover:bg-yellow-600 transition"
+        >
+          Adicionar ao Carrinho
+        </button>
+        <button
+          onClick={gerarMensagemWhatsApp}
+          className="bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600 transition"
+        >
+          Enviar pelo WhatsApp
+        </button>
       </div>
     </section>
   )
